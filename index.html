@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DD Champion</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #87CEEB;
+        }
+        #game-container {
+            background-color: #4A4A4A;
+            border-radius: 10px;
+            padding: 20px;
+            width: 400px;
+            text-align: center;
+        }
+        #title-screen, #tutorial-screen, #game-screen {
+            display: none;
+        }
+        #stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            color: white;
+        }
+        #scenario, #tutorial-text {
+            background-color: #2A2A2A;
+            color: white;
+            padding: 10px;
+            margin-bottom: 10px;
+            min-height: 100px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+        }
+        h1, h2 {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="title-screen">
+            <h1>Hoggo Deal Closer</h1>
+            <button onclick="showTutorial()">Start Game</button>
+        </div>
+        <div id="tutorial-screen">
+            <h2>Tutorial</h2>
+            <div id="tutorial-text">
+                You are a startup founder trying to close as many deals with big clients as possible.
+                <br><br>
+                Your goal is to secure deals while maintaining your company's reputation and resources.
+                <br><br>
+                Let's get started!
+            </div>
+            <button onclick="startGame()">I'm ready!</button>
+        </div>
+        <div id="game-screen">
+            <div id="stats">
+                <span>Deals: <span id="deals">0</span></span>
+                <span>Reputation: <span id="reputation">100</span></span>
+            </div>
+            <div id="scenario"></div>
+            <div id="choices">
+                <button id="choice1"></button>
+                <button id="choice2"></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const scenarios = [
+            {
+                text: "Your first client requested extensive security documentation. What do you do?",
+                choices: ["Get an external costly consultant", "Get online templates"],
+                results: [
+                    { text: "The consultant was expensive but worth it. Deal closed!", deals: 1, reputation: 5 },
+                    { text: "Getting templates online has legal consequences and is error-prone. Deal lost.", deals: 0, reputation: -10 }
+                ]
+            },
+            {
+                text: "An investor wants to assess your GDPR compliance efforts. What do you do?",
+                choices: ["Working on our documents and RoPA", "Ensure them you are GDPR compliant because you have a Privacy Policy"],
+                results: [
+                    { text: "Working internally on having clear documentation impresses the investor. Deal closed!", deals: 1, reputation: 10 },
+                    { text: "You used the term "GDPR compliant". Investor walks away.", deals: 0, reputation: -5 }
+                ]
+            },
+            {
+                text: "Your inbox is full with information requests on your privacy and security practices. How to solve it?",
+                choices: ["Claim your hoggo Passport and embed it on your site", "Hire someone to manually answer them"],
+                results: [
+                    { text: "Claiming your company's hoggo Passport was a smart move. Deal closed!", deals: 1, reputation: 10 },
+                    { text: "Your employee did a lot of mistakes. Multiple deals lost", deals: 0, reputation: -10 }
+                ]
+            }
+        ];
+
+        let currentScenario = 0;
+        let deals = 0;
+        let reputation = 100;
+
+        function showTutorial() {
+            document.getElementById('title-screen').style.display = 'none';
+            document.getElementById('tutorial-screen').style.display = 'block';
+        }
+
+        function startGame() {
+            document.getElementById('tutorial-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'block';
+            displayScenario();
+        }
+
+        function updateStats() {
+            document.getElementById('deals').textContent = deals;
+            document.getElementById('reputation').textContent = reputation;
+        }
+
+        function displayScenario() {
+            const scenario = scenarios[currentScenario];
+            document.getElementById('scenario').textContent = scenario.text;
+            document.getElementById('choice1').textContent = scenario.choices[0];
+            document.getElementById('choice2').textContent = scenario.choices[1];
+        }
+
+        function makeChoice(choiceIndex) {
+            const scenario = scenarios[currentScenario];
+            const result = scenario.results[choiceIndex];
+            
+            deals += result.deals;
+            reputation += result.reputation;
+            
+            document.getElementById('scenario').textContent = result.text;
+            updateStats();
+            
+            // Disable choice buttons
+            document.getElementById('choice1').disabled = true;
+            document.getElementById('choice2').disabled = true;
+            
+            // Move to next scenario or end game
+            currentScenario++;
+            if (currentScenario >= scenarios.length || reputation <= 0) {
+                setTimeout(endGame, 2000);
+            } else {
+                setTimeout(() => {
+                    displayScenario();
+                    document.getElementById('choice1').disabled = false;
+                    document.getElementById('choice2').disabled = false;
+                }, 2000);
+            }
+        }
+
+        function endGame() {
+            document.getElementById('scenario').textContent = `Game Over! You closed ${deals} deals.`;
+            document.getElementById('choices').style.display = 'none';
+            // Add a replay button
+            const replayButton = document.createElement('button');
+            replayButton.textContent = 'Play Again';
+            replayButton.onclick = resetGame;
+            document.getElementById('game-screen').appendChild(replayButton);
+        }
+
+        function resetGame() {
+            currentScenario = 0;
+            deals = 0;
+            reputation = 100;
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('title-screen').style.display = 'block';
+            document.getElementById('choices').style.display = 'block';
+            // Remove the replay button
+            const replayButton = document.querySelector('#game-screen button:last-child');
+            if (replayButton) replayButton.remove();
+        }
+
+        document.getElementById('choice1').addEventListener('click', () => makeChoice(0));
+        document.getElementById('choice2').addEventListener('click', () => makeChoice(1));
+
+        // Start with the title screen
+        document.getElementById('title-screen').style.display = 'block';
+    </script>
+</body>
+  <script src="script.js"></script>
+</html>
