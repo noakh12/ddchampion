@@ -11,15 +11,16 @@
             padding: 0;
             background-color: #0e6a74;
         }
-        #header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background-color: #1b4a56;
-        }
+#header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #1b4a56;
+    height: 80px; /* Increased height */
+}
         #logo {
-            height: 70px;
+            height: 60px;
         }
         #check-out-button {
     background-color: #4CAF50;
@@ -30,6 +31,12 @@
     font-size: 16px;
     border-radius: 5px;
     margin-left: auto; /* This pushes the button to the right */
+    transition: background-color 0.3s;
+}
+        .button-container {
+    display: flex;
+    justify-content: flex-end;
+    width: 50%;
 }
         #game-container {
             display: flex;
