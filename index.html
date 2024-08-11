@@ -7,22 +7,60 @@
     <style>
         body {
             font-family: 'Courier New', monospace;
+            margin: 0;
+            padding: 0;
+            background-color: #87CEEB;
+        }
+        #header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #2A2A2A;
+        }
+        #logo {
+            height: 40px;
+        }
+        #check-out-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #game-container {
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #0e6a74;
+            height: calc(100vh - 60px); /* Subtract header height */
         }
-        #game-container {
+        #game-content {
             background-color: #4A4A4A;
             border-radius: 10px;
             padding: 20px;
             width: 400px;
             text-align: center;
         }
-        #title-screen, #tutorial-screen, #game-screen, #result-screen, #end-screen {
-            display: none;
+        #tutorial-screen {
+            color: white;
+        }
+        #tutorial-text {
+            background-color: #2A2A2A;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        #play-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            width: 80px;
+            height: 80px;
+        }
+        #play-button img {
+            width: 100%;
+            height: 100%;
         }
         #stats {
             display: flex;
@@ -100,25 +138,24 @@
     </style>
 </head>
 <body>
+        <div id="header">
+        <img id="logo" src="https://hoggo.io/wp-content/uploads/2022/11/greenheHoggo-Logo-Inverted-Colors.png" alt="Hoggo Logo">
+        <button id="check-out-button" onclick="window.open('https://www.hoggo.ai', '_blank')">Check out hoggo</button>
+    </div>
     <div id="game-container">
-        <div id="title-screen">
-            <h1>Hoggo Deal Closer</h1>
-            <button onclick="showTutorial()">Start Game</button>
-        </div>
-        <div id="tutorial-screen">
-            <h2>Tutorial</h2>
-            <div id="tutorial-text">
-                You are a startup founder trying to close as many deals with big clients as possible.
-                <br><br>
-                Your goal is to secure deals while maintaining your company's reputation and resources.
-                <br><br>
-                Let's get started!
-            </div>
-            <button onclick="startGame()">I'm ready!</button>
-            <div id="control-buttons">
-            <button id="play-button" class="image-button" onclick="togglePlayPause()"></button>
-            <button id="pause-button" class="image-button" onclick="togglePlayPause()"></button>
-        </div>
+        <div id="game-content">
+            <div id="tutorial-screen">
+                <h2>Tutorial</h2>
+                <div id="tutorial-text">
+                    You are a startup founder trying to close as many deals with big clients as possible.
+                    <br><br>
+                    Your goal is to secure deals while maintaining your company's reputation and resources.
+                    <br><br>
+                    Let's get started!
+                </div>
+                <button id="play-button" onclick="startGame()">
+                    <img src="https://noakh12.github.io/ddchampion/images/play.png" alt="Play">
+                </button>
         </div>
         <div id="game-screen">
             <div id="stats">
