@@ -3,10 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DD Champion</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
+    <title>Hoggo Deal Closer</title>
     <style>
         body {
             font-family: 'Courier New', monospace;
@@ -47,9 +44,33 @@
             cursor: pointer;
             font-family: 'Courier New', monospace;
             font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #ddd;
         }
         h1, h2 {
             color: white;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        .progress {
+            width: 0;
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 10px;
+            transition: width 0.5s;
+        }
+        .score-change {
+            position: absolute;
+            font-weight: bold;
+            opacity: 0;
+            transition: all 0.5s;
         }
     </style>
 </head>
@@ -73,7 +94,11 @@
         <div id="game-screen">
             <div id="stats">
                 <span>Deals: <span id="deals">0</span></span>
+                <span>Score: <span id="score">0</span></span>
                 <span>Reputation: <span id="reputation">100</span></span>
+            </div>
+            <div class="progress-bar">
+                <div id="progress" class="progress"></div>
             </div>
             <div id="scenario"></div>
             <div id="choices">
@@ -89,24 +114,24 @@
                 text: "Your first client requested extensive security documentation. What do you do?",
                 choices: ["Get an external costly consultant", "Get online templates"],
                 results: [
-                    { text: "The consultant was expensive but worth it. Deal closed!", deals: 1, reputation: 5 },
-                    { text: "Getting templates online has legal consequences and is error-prone. Deal lost.", deals: 0, reputation: -10 }
+                    { text: "The consultant was expensive but worth it. Deal closed!", deals: 1, reputation: 5, score: 100 },
+                    { text: "Getting templates online has legal consequences and is error-prone. Deal lost.", deals: 0, reputation: -10, score: -50 }
                 ]
             },
             {
                 text: "An investor wants to assess your GDPR compliance efforts. What do you do?",
                 choices: ["Working on our documents and RoPA", "Ensure them you are GDPR compliant because you have a Privacy Policy"],
                 results: [
-                    { text: "Working internally on having clear documentation impresses the investor. Deal closed!", deals: 1, reputation: 10 },
-                    { text: "You used the term "GDPR compliant". Investor walks away.", deals: 0, reputation: -5 }
+                    { text: "Working internally on having clear documentation impresses the investor. Deal closed!", deals: 1, reputation: 10, score: 150 },
+                    { text: "You used the term "GDPR compliant". Investor walks away.", deals: 0, reputation: -5, score: -75 }
                 ]
             },
             {
                 text: "Your inbox is full with information requests on your privacy and security practices. How to solve it?",
                 choices: ["Claim your hoggo Passport and embed it on your site", "Hire someone to manually answer them"],
                 results: [
-                    { text: "Claiming your company's hoggo Passport was a smart move. Deal closed!", deals: 1, reputation: 10 },
-                    { text: "Your employee did a lot of mistakes. Multiple deals lost", deals: 0, reputation: -10 }
+                    { text: "Claiming your company's hoggo Passport was a smart move. Deal closed!", deals: 1, reputation: 10, score: 200 },
+                    { text: "Your employee did a lot of mistakes. Multiple deals lost", deals: 0, reputation: -10, score: -100 }
                 ]
             }
         ];
@@ -114,6 +139,7 @@
         let currentScenario = 0;
         let deals = 0;
         let reputation = 100;
+        let score = 0;
 
         function showTutorial() {
             document.getElementById('title-screen').style.display = 'none';
@@ -124,11 +150,13 @@
             document.getElementById('tutorial-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'block';
             displayScenario();
+            updateProgress();
         }
 
         function updateStats() {
             document.getElementById('deals').textContent = deals;
             document.getElementById('reputation').textContent = reputation;
+            document.getElementById('score').textContent = score;
         }
 
         function displayScenario() {
@@ -138,15 +166,49 @@
             document.getElementById('choice2').textContent = scenario.choices[1];
         }
 
+        function updateProgress() {
+            const progress = (currentScenario / scenarios.length) * 100;
+            document.getElementById('progress').style.width = `${progress}%`;
+        }
+
+        function animateScoreChange(change) {
+            const scoreChange = document.createElement('div');
+            scoreChange.className = 'score-change';
+            scoreChange.style.color = change >= 0 ? 'green' : 'red';
+            scoreChange.textContent = change >= 0 ? `+${change}` : change;
+            document.getElementById('game-container').appendChild(scoreChange);
+
+            // Set initial position
+            const rect = document.getElementById('score').getBoundingClientRect();
+            scoreChange.style.left = `${rect.left}px`;
+            scoreChange.style.top = `${rect.top}px`;
+
+            // Animate
+            setTimeout(() => {
+                scoreChange.style.opacity = '1';
+                scoreChange.style.transform = 'translateY(-20px)';
+            }, 50);
+
+            setTimeout(() => {
+                scoreChange.style.opacity = '0';
+            }, 1000);
+
+            setTimeout(() => {
+                scoreChange.remove();
+            }, 1500);
+        }
+
         function makeChoice(choiceIndex) {
             const scenario = scenarios[currentScenario];
             const result = scenario.results[choiceIndex];
             
             deals += result.deals;
             reputation += result.reputation;
+            score += result.score;
             
             document.getElementById('scenario').textContent = result.text;
             updateStats();
+            animateScoreChange(result.score);
             
             // Disable choice buttons
             document.getElementById('choice1').disabled = true;
@@ -154,6 +216,7 @@
             
             // Move to next scenario or end game
             currentScenario++;
+            updateProgress();
             if (currentScenario >= scenarios.length || reputation <= 0) {
                 setTimeout(endGame, 2000);
             } else {
@@ -166,7 +229,7 @@
         }
 
         function endGame() {
-            document.getElementById('scenario').textContent = `Game Over! You closed ${deals} deals.`;
+            document.getElementById('scenario').textContent = `Game Over! You closed ${deals} deals with a final score of ${score}.`;
             document.getElementById('choices').style.display = 'none';
             // Add a replay button
             const replayButton = document.createElement('button');
@@ -179,9 +242,12 @@
             currentScenario = 0;
             deals = 0;
             reputation = 100;
+            score = 0;
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('title-screen').style.display = 'block';
             document.getElementById('choices').style.display = 'block';
+            updateStats();
+            updateProgress();
             // Remove the replay button
             const replayButton = document.querySelector('#game-screen button:last-child');
             if (replayButton) replayButton.remove();
@@ -194,5 +260,4 @@
         document.getElementById('title-screen').style.display = 'block';
     </script>
 </body>
-  <script src="script.js"></script>
 </html>
