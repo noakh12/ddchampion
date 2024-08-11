@@ -20,11 +20,12 @@
     height: 80px; /* Increased height */
 }
         #logo {
-            height: 60px;
-        }
+    height: 60px;
+    width: auto; /* Ensure aspect ratio is maintained */
+}
         #check-out-button {
-    background-color: #4CAF50;
-    color: white;
+    background-color: #face6a;
+    color: #1b4a56;
     border: none;
     padding: 10px 20px;
     cursor: pointer;
@@ -32,6 +33,19 @@
     border-radius: 5px;
     margin-left: auto; /* This pushes the button to the right */
     transition: background-color 0.3s;
+    white-space: nowrap; /* Prevent text wrapping */
+    max-width: 200px; /* Limit the button width */
+}
+        #check-out-button:hover {
+    background-color: #45a049;
+}
+
+#tutorial-image {
+    width: 100%;
+    max-width: 200px; /* Adjust this value as needed */
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 10px;
 }
         .button-container {
     display: flex;
@@ -125,7 +139,7 @@
             opacity: 0;
             transition: all 0.5s;
         }
-        .result-image, .end-image, tutorial-image, #scenario-image {
+        .result-image, .end-image, #scenario-image {
             width: 100%;
             height: 200px;
             object-fit: contain;
