@@ -34,15 +34,21 @@
             justify-content: center;
             align-items: center;
             height: calc(100vh - 60px); /* Subtract header height */
+            padding: 20px;
+            box-sizing: border-box;
         }
         #game-content {
             background-color: #4A4A4A;
             border-radius: 10px;
             padding: 20px;
-            width: 400px;
+            width: 100%;
+            max-width: 400px;
             text-align: center;
         }
-        #tutorial-screen {
+        #tutorial-screen, #game-screen, #result-screen, #end-screen {
+            display: none;
+        }
+        #tutorial-screen, #tutorial-text {
             color: white;
         }
         #tutorial-text {
@@ -52,15 +58,15 @@
             border-radius: 5px;
         }
         #play-button {
-            background: none;
-            border: none;
-            cursor: pointer;
+            background: url('https://noakh12.github.io/ddchampion/images/play.png') no-repeat center center;
+            background-size: contain;
             width: 80px;
             height: 80px;
+            border: none;
+            cursor: pointer;
         }
         #play-button img {
-            width: 100%;
-            height: 100%;
+            display: none;
         }
         #stats {
             display: flex;
@@ -68,7 +74,7 @@
             margin-bottom: 10px;
             color: white;
         }
-        #scenario, #tutorial-text, #result-text, #end-text {
+        #scenario, #result-text, #end-text {
             background-color: #2A2A2A;
             color: white;
             padding: 10px;
@@ -110,35 +116,16 @@
             opacity: 0;
             transition: all 0.5s;
         }
-        .result-image, .end-image {
+        .result-image, .end-image, #scenario-image {
             width: 100%;
             height: 200px;
             object-fit: cover;
             margin-bottom: 10px;
         }
-                .image-button {
-            width: 50px;
-            height: 50px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            border: none;
-            cursor: pointer;
-            margin: 10px;
-        }
-
-        #play-button {
-            background-image: url('https://noakh12.github.io/ddchampion/images/play.png');
-        }
-
-        #pause-button {
-            background-image: url('https://noakh12.github.io/ddchampion/images/pause.png');
-            display: none; /* Hidden by default */
-        }
     </style>
 </head>
 <body>
-        <div id="header">
+    <div id="header">
         <img id="logo" src="https://hoggo.io/wp-content/uploads/2022/11/greenheHoggo-Logo-Inverted-Colors.png" alt="Hoggo Logo">
         <button id="check-out-button" onclick="window.open('https://www.hoggo.ai', '_blank')">Check out hoggo</button>
     </div>
@@ -153,34 +140,34 @@
                     <br><br>
                     Let's get started!
                 </div>
-                <button id="play-button" onclick="startGame()">
-                    <img src="https://noakh12.github.io/ddchampion/images/play.png" alt="Play">
-                </button>
-        </div>
-        <div id="game-screen">
-            <div id="stats">
-                <span>Deals: <span id="deals">0</span></span>
-                <span>Score: <span id="score">0</span></span>
-                <span>Reputation: <span id="reputation">100</span></span>
+                <button id="play-button" onclick="startGame()"></button>
             </div>
-            <div class="progress-bar">
-                <div id="progress" class="progress"></div>
+            <div id="game-screen">
+                <div id="stats">
+                    <span>Deals: <span id="deals">0</span></span>
+                    <span>Score: <span id="score">0</span></span>
+                    <span>Reputation: <span id="reputation">100</span></span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progress" class="progress"></div>
+                </div>
+                <img id="scenario-image" src="" alt="Scenario">
+                <div id="scenario"></div>
+                <div id="choices">
+                    <button id="choice1"></button>
+                    <button id="choice2"></button>
+                </div>
             </div>
-            <div id="scenario"></div>
-            <div id="choices">
-                <button id="choice1"></button>
-                <button id="choice2"></button>
+            <div id="result-screen">
+                <img id="result-image" class="result-image" src="" alt="Result">
+                <div id="result-text"></div>
+                <button onclick="nextScenario()">Continue</button>
             </div>
-        </div>
-        <div id="result-screen">
-            <img id="result-image" class="result-image" src="" alt="Result">
-            <div id="result-text"></div>
-            <button onclick="nextScenario()">Continue</button>
-        </div>
-        <div id="end-screen">
-            <img id="end-image" class="end-image" src="" alt="Game Over">
-            <div id="end-text"></div>
-            <button onclick="resetGame()">Play Again</button>
+            <div id="end-screen">
+                <img id="end-image" class="end-image" src="" alt="Game Over">
+                <div id="end-text"></div>
+                <button onclick="resetGame()">Play Again</button>
+            </div>
         </div>
     </div>
 
@@ -220,13 +207,20 @@
         let reputation = 100;
         let score = 0;
 
+        function hideAllScreens() {
+            document.getElementById('tutorial-screen').style.display = 'none';
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'none';
+        }
+
         function showTutorial() {
-            document.getElementById('title-screen').style.display = 'none';
+            hideAllScreens();
             document.getElementById('tutorial-screen').style.display = 'block';
         }
 
         function startGame() {
-            document.getElementById('tutorial-screen').style.display = 'none';
+            hideAllScreens();
             document.getElementById('game-screen').style.display = 'block';
             displayScenario();
             updateProgress();
@@ -240,6 +234,7 @@
 
         function displayScenario() {
             const scenario = scenarios[currentScenario];
+            document.getElementById('scenario-image').src = scenario.image;
             document.getElementById('scenario').textContent = scenario.text;
             document.getElementById('choice1').textContent = scenario.choices[0];
             document.getElementById('choice2').textContent = scenario.choices[1];
@@ -288,8 +283,7 @@
             updateStats();
             animateScoreChange(result.score);
             
-            // Show result screen
-            document.getElementById('game-screen').style.display = 'none';
+            hideAllScreens();
             document.getElementById('result-screen').style.display = 'block';
             document.getElementById('result-image').src = result.image;
             document.getElementById('result-text').textContent = result.text;
@@ -301,16 +295,16 @@
             if (currentScenario >= scenarios.length || reputation <= 0) {
                 endGame();
             } else {
-                document.getElementById('result-screen').style.display = 'none';
+                hideAllScreens();
                 document.getElementById('game-screen').style.display = 'block';
                 displayScenario();
             }
         }
 
         function endGame() {
-            document.getElementById('result-screen').style.display = 'none';
+            hideAllScreens();
             document.getElementById('end-screen').style.display = 'block';
-            document.getElementById('end-image').src = "/api/placeholder/400/200";
+            document.getElementById('end-image').src = "https://noakh12.github.io/ddchampion/images/gameover.png";
             document.getElementById('end-text').textContent = `Game Over! You closed ${deals} deals with a final score of ${score}.`;
         }
 
@@ -319,8 +313,8 @@
             deals = 0;
             reputation = 100;
             score = 0;
-            document.getElementById('end-screen').style.display = 'none';
-            document.getElementById('title-screen').style.display = 'block';
+            hideAllScreens();
+            showTutorial();
             updateStats();
             updateProgress();
         }
@@ -328,25 +322,8 @@
         document.getElementById('choice1').addEventListener('click', () => makeChoice(0));
         document.getElementById('choice2').addEventListener('click', () => makeChoice(1));
 
-        // Start with the title screen
-        document.getElementById('title-screen').style.display = 'block';
-                let isPaused = false;
-
-        function togglePlayPause() {
-            isPaused = !isPaused;
-            const playButton = document.getElementById('play-button');
-            const pauseButton = document.getElementById('pause-button');
-            
-            if (isPaused) {
-                playButton.style.display = 'none';
-                pauseButton.style.display = 'inline-block';
-                // Add any pause functionality here
-            } else {
-                pauseButton.style.display = 'none';
-                playButton.style.display = 'inline-block';
-                // Add any resume functionality here
-            }
-        }
+        // Start with the tutorial screen
+        window.onload = showTutorial;
     </script>
 </body>
 </html>
