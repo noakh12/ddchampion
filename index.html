@@ -12,7 +12,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background-color: #87CEEB;
+            background-color: #0e6a74;
         }
         #game-container {
             background-color: #4A4A4A;
@@ -21,7 +21,7 @@
             width: 400px;
             text-align: center;
         }
-        #title-screen, #tutorial-screen, #game-screen {
+        #title-screen, #tutorial-screen, #game-screen, #result-screen, #end-screen {
             display: none;
         }
         #stats {
@@ -30,7 +30,7 @@
             margin-bottom: 10px;
             color: white;
         }
-        #scenario, #tutorial-text {
+        #scenario, #tutorial-text, #result-text, #end-text {
             background-color: #2A2A2A;
             color: white;
             padding: 10px;
@@ -72,6 +72,12 @@
             opacity: 0;
             transition: all 0.5s;
         }
+        .result-image, .end-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -106,6 +112,16 @@
                 <button id="choice2"></button>
             </div>
         </div>
+        <div id="result-screen">
+            <img id="result-image" class="result-image" src="" alt="Result">
+            <div id="result-text"></div>
+            <button onclick="nextScenario()">Continue</button>
+        </div>
+        <div id="end-screen">
+            <img id="end-image" class="end-image" src="" alt="Game Over">
+            <div id="end-text"></div>
+            <button onclick="resetGame()">Play Again</button>
+        </div>
     </div>
 
     <script>
@@ -114,24 +130,24 @@
                 text: "Your first client requested extensive security documentation. What do you do?",
                 choices: ["Get an external costly consultant", "Get online templates"],
                 results: [
-                    { text: "The consultant was expensive but worth it. Deal closed!", deals: 1, reputation: 5, score: 100 },
-                    { text: "Getting templates online has legal consequences and is error-prone. Deal lost.", deals: 0, reputation: -10, score: -50 }
+                    { text: "The consultant was expensive but worth it. Deal closed!", deals: 1, reputation: 5, score: 100, image: "/api/placeholder/400/200" },
+                    { text: "Getting templates online has legal consequences and is error-prone. Deal lost.", deals: 0, reputation: -10, score: -50, image: "/api/placeholder/400/200" }
                 ]
             },
             {
                 text: "An investor wants to assess your GDPR compliance efforts. What do you do?",
                 choices: ["Working on our documents and RoPA", "Ensure them you are GDPR compliant because you have a Privacy Policy"],
                 results: [
-                    { text: "Working internally on having clear documentation impresses the investor. Deal closed!", deals: 1, reputation: 10, score: 150 },
-                    { text: "You used the term "GDPR compliant". Investor walks away.", deals: 0, reputation: -5, score: -75 }
+                    { text: "Working internally on having clear documentation impresses the investor. Deal closed!", deals: 1, reputation: 10, score: 150, image: "/api/placeholder/400/200" },
+                    { text: "You used the term "GDPR compliant". Investor walks away.", deals: 0, reputation: -5, score: -75, image: "/api/placeholder/400/200" }
                 ]
             },
             {
                 text: "Your inbox is full with information requests on your privacy and security practices. How to solve it?",
                 choices: ["Claim your hoggo Passport and embed it on your site", "Hire someone to manually answer them"],
                 results: [
-                    { text: "Claiming your company's hoggo Passport was a smart move. Deal closed!", deals: 1, reputation: 10, score: 200 },
-                    { text: "Your employee did a lot of mistakes. Multiple deals lost", deals: 0, reputation: -10, score: -100 }
+                    { text: "Claiming your company's hoggo Passport was a smart move. Deal closed!", deals: 1, reputation: 10, score: 200, image: "/api/placeholder/400/200" },
+                    { text: "Your employee did a lot of mistakes. Multiple deals lost", deals: 0, reputation: -10, score: -100, image: "/api/placeholder/400/200" }
                 ]
             }
         ];
@@ -206,36 +222,33 @@
             reputation += result.reputation;
             score += result.score;
             
-            document.getElementById('scenario').textContent = result.text;
             updateStats();
             animateScoreChange(result.score);
             
-            // Disable choice buttons
-            document.getElementById('choice1').disabled = true;
-            document.getElementById('choice2').disabled = true;
-            
-            // Move to next scenario or end game
+            // Show result screen
+            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('result-screen').style.display = 'block';
+            document.getElementById('result-image').src = result.image;
+            document.getElementById('result-text').textContent = result.text;
+        }
+
+        function nextScenario() {
             currentScenario++;
             updateProgress();
             if (currentScenario >= scenarios.length || reputation <= 0) {
-                setTimeout(endGame, 2000);
+                endGame();
             } else {
-                setTimeout(() => {
-                    displayScenario();
-                    document.getElementById('choice1').disabled = false;
-                    document.getElementById('choice2').disabled = false;
-                }, 2000);
+                document.getElementById('result-screen').style.display = 'none';
+                document.getElementById('game-screen').style.display = 'block';
+                displayScenario();
             }
         }
 
         function endGame() {
-            document.getElementById('scenario').textContent = `Game Over! You closed ${deals} deals with a final score of ${score}.`;
-            document.getElementById('choices').style.display = 'none';
-            // Add a replay button
-            const replayButton = document.createElement('button');
-            replayButton.textContent = 'Play Again';
-            replayButton.onclick = resetGame;
-            document.getElementById('game-screen').appendChild(replayButton);
+            document.getElementById('result-screen').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'block';
+            document.getElementById('end-image').src = "/api/placeholder/400/200";
+            document.getElementById('end-text').textContent = `Game Over! You closed ${deals} deals with a final score of ${score}.`;
         }
 
         function resetGame() {
@@ -243,14 +256,10 @@
             deals = 0;
             reputation = 100;
             score = 0;
-            document.getElementById('game-screen').style.display = 'none';
+            document.getElementById('end-screen').style.display = 'none';
             document.getElementById('title-screen').style.display = 'block';
-            document.getElementById('choices').style.display = 'block';
             updateStats();
             updateProgress();
-            // Remove the replay button
-            const replayButton = document.querySelector('#game-screen button:last-child');
-            if (replayButton) replayButton.remove();
         }
 
         document.getElementById('choice1').addEventListener('click', () => makeChoice(0));
